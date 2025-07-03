@@ -1,1 +1,5 @@
 flask
+PyPDF2
+gTTS
+fpdf
+nltk
