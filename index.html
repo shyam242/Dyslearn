@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dyslearn</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap');
+
+@font-face {
+    font-family: 'OpenDyslexic';
+    src: url('https://cdn.jsdelivr.net/gh/antijingoist/open-dyslexic/open-dyslexic-regular.otf') format('opentype');
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'OpenDyslexic', 'Open Sans', sans-serif;
+    background: white;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    transition: background 0.5s ease, color 0.5s ease;
+}
+
+.sidebar {
+    width: 60px;
+    background: #00bfa5;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    transition: width 0.3s ease;
+}
+
+.sidebar.expanded {
+    width: 220px;
+}
+
+.hamburger {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.8rem;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    width: 90%;
+    padding: 10px;
+    margin: 8px 0;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+.nav-item:hover, .nav-item.active {
+    background: rgba(255,255,255,0.2);
+}
+
+.nav-icon {
+    font-size: 1.5rem;
+    margin-right: 10px;
+}
+
+.nav-label {
+    display: none;
+}
+
+.sidebar.expanded .nav-label {
+    display: inline;
+}
+
+.main-content {
+    flex: 1;
+    padding: 1.5rem;
+}
+
+.theme-slider, #dyslexicSlider {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #c7f9cc, #57cc99);
+    border-radius: 25px;
+    padding: 6px 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
+    position: fixed;
+    z-index: 100;
+    user-select: none;
+    transition: background 0.4s ease;
+}
+
+.theme-slider {
+    top: 20px;
+    right: 20px;
+}
+
+#dyslexicSlider {
+    top: 20px;
+    right: 220px;
+    
+}
+
+.theme-slider-text, #dyslexicText {
+    font-weight: bold;
+    color: #064e3b;
+    margin-right: 10px;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+}
+
+.theme-slider-circle, #dyslexicCircle {
+    width: 20px;
+    height: 20px;
+    background: #10b981;
+    border-radius: 50%;
+    transition: transform 0.4s ease, background 0.3s ease;
+}
+
+.dyslexic-mode {
+    font-family: 'OpenDyslexic', sans-serif !important;
+    background: linear-gradient(135deg, #f5faff, #d0f0ff) !important;
+    color: #222 !important;
+}
+
+.dyslexic-controls {
+    display: none;
+    gap: 10px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+    background: #e0f7fa;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+#reading-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: rgba(9, 232, 240, 0.4);
+    pointer-events: none;
+    display: none;
+    z-index: 1000;
+}
+
+.syllable-highlight span {
+    background: #ffffb3;
+    padding: 0 2px;
+    border-radius: 3px;
+    margin: 0 1px;
+}
+
+.tab-content {
+    display: none;
+    animation: fadeIn 0.5s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+textarea, input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    transition: border 0.3s ease;
+}
+
+textarea:focus, input[type="file"]:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+a {
+    text-decoration: none;
+}
+
+.button {
+    display: inline-block;
+    padding: 12px 25px;
+    margin: 8px 5px;
+    background: linear-gradient(90deg, #00bfa5, #1de9b6);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s ease, transform 0.2s;
+}
+
+.button:hover {
+    background: linear-gradient(90deg, #00897b, #1de9b6);
+    transform: scale(1.05);
+}
+
+#pdf-result, #simplified-result, #summary-result, #pronunciation-feedback {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f1f8e9;
+    border-left: 4px solid #4CAF50;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <div class="nav-item active" onclick="openTab('pdf-tab', this)">
+        <span class="nav-icon">📄</span>
+        <span class="nav-label">PDF Upload</span>
+    </div>
+    <div class="nav-item" onclick="openTab('text-tab', this)">
+        <span class="nav-icon">📝</span>
+        <span class="nav-label">Text Simplification</span>
+    </div>
+    <div class="nav-item" onclick="openTab('pronunciation-tab', this)">
+        <span class="nav-icon">🔊</span>
+        <span class="nav-label">Pronunciation</span>
+    </div>
+    <div class="nav-item" onclick="openTab('speech-tab', this)">
+        <span class="nav-icon">🎤</span>
+        <span class="nav-label">Speech Tools</span>
+    </div>
+    <div class="nav-item" onclick="openTab('notes-tab', this)">
+        <span class="nav-icon">📚</span>
+        <span class="nav-label">Notes</span>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="theme-slider" onclick="toggleTheme()" id="themeSlider">
+        <span class="theme-slider-text" id="themeText">Light Mode</span>
+        <div class="theme-slider-circle" id="themeCircle"></div>
+    </div>
+
+    <div id="dyslexicSlider" onclick="toggleDyslexicMode()">
+        <span id="dyslexicText">Dyslexic Mode</span>
+        <div id="dyslexicCircle"></div>
+    </div>
+
+    <div class="dyslexic-controls" id="dysControls">
+        <label>Font Size:
+            <input type="range" min="14" max="24" value="16" id="fontSizeRange" oninput="adjustFontSize(this.value)">
+        </label>
+        <label>Spacing:
+            <input type="range" min="0" max="10" value="2" id="spacingRange" oninput="adjustSpacing(this.value)">
+        </label>
+        <!-- <label>Background:
+            <input type="color" id="bgColorPicker" value="#ffffff" onchange="adjustBgColor(this.value)">
+        </label> -->
+        <button class="button" onclick="toggleReadingMask()" id="maskButton">Enable Reading Mask</button>
+        <button class="button" onclick="highlightSyllables()">Highlight Syllables</button>
+    </div>
+
+    <div id="reading-mask"></div>
+
+    <div id="pdf-tab" class="tab-content active">
+        <h2>Upload PDF</h2>
+        <input type="file" id="pdf-upload" accept="application/pdf">
+        <button class="button" onclick="handlePDFUpload()">Simplify PDF</button>
+        <div id="pdf-message"></div>
+        <div id="pdf-result"></div>
+    </div>
+
+    <div id="text-tab" class="tab-content">
+        <h2>Text Simplification</h2>
+        <textarea id="text-input" rows="8" placeholder="Paste or type your text..."></textarea>
+        <button class="button" onclick="simplifyText()">Simplify Text</button>
+        <button class="button" onclick="summarizeText()">Summarize Text</button>
+        <div id="simplified-result"></div>
+        <div id="summary-result"></div>
+    </div>
+
+    <div id="pronunciation-tab" class="tab-content">
+        <h2>Pronunciation Checker</h2>
+        <textarea id="pronunciation-input" rows="4" placeholder="Type text to check pronunciation..."></textarea>
+        <button class="button" onclick="playPronunciation()">🔈 Hear Pronunciation</button>
+        <button class="button" onclick="recordPronunciation()">🎙️ Record Your Pronunciation</button>
+        <div id="pronunciation-feedback"></div>
+    </div>
+
+    <div id="speech-tab" class="tab-content">
+        <h2>Speech Tools</h2>
+        <textarea id="speech-input" rows="4" placeholder="Text to convert to speech..."></textarea>
+        <button class="button" onclick="startSpeech()">▶️ Play</button>
+        <button class="button" onclick="pauseSpeech()">⏸️ Pause</button>
+        <button class="button" onclick="convertToText()">🎤 Speech to Text</button>
+    </div>
+
+    <div id="notes-tab" class="tab-content">
+        <h2>Download Notes</h2>
+        <button class="button" onclick="saveSimplifiedText()">💾 Save Text</button>
+        <a href="/download_pdf" class="button" download>📥 Download PDF</a>
+        <a href="/download_txt" class="button" download>📥 Download TXT</a>
+    </div>
+</div>
+
+<script>
+    let dyslexicMode = false;
+let maskActive = false;
+let nightMode = false;
+
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('expanded');
+}
+
+function openTab(tabId, el) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    el.classList.add('active');
+}
+
+function toggleTheme() {
+    nightMode = !nightMode;
+    const text = document.getElementById('themeText');
+    const circle = document.getElementById('themeCircle');
+    const slider = document.getElementById('themeSlider');
+
+    if (nightMode) {
+        document.body.style.background = 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)';
+        document.body.style.color = '#e0f7fa';
+        text.textContent = "Night Mode";
+        slider.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+        text.style.color = '#e0e7ff';
+        circle.style.transform = 'translateX(11px)';
+        circle.style.background = '#8b5cf6';
+    } else {
+        document.body.style.background = 'linear-gradient(135deg, #fdfbfb, #ebedee)';
+        document.body.style.color = '#333';
+        text.textContent = "Light Mode";
+        slider.style.background = 'linear-gradient(135deg, #c7f9cc, #57cc99)';
+        text.style.color = '#064e3b';
+        circle.style.transform = 'translateX(0)';
+        circle.style.background = '#10b981';
+    }
+}
+
+function toggleDyslexicMode() {
+    dyslexicMode = !dyslexicMode;
+    document.body.classList.toggle('dyslexic-mode', dyslexicMode);
+
+    const text = document.getElementById('dyslexicText');
+    const circle = document.getElementById('dyslexicCircle');
+    const slider = document.getElementById('dyslexicSlider');
+    const controls = document.getElementById('dysControls');
+
+    if (dyslexicMode) {
+        text.textContent = "Dyslexic Mode On";
+        slider.style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+        text.style.color = '#e0e7ff';
+        circle.style.transform = 'translateX(11px)';
+        circle.style.background = '#8b5cf6';
+        controls.style.display = 'flex';
+    } else {
+        text.textContent = "Dyslexic Mode";
+        slider.style.background = 'linear-gradient(135deg, #c7f9cc, #57cc99)';
+        text.style.color = '#064e3b';
+        circle.style.transform = 'translateX(0)';
+        circle.style.background = '#10b981';
+        controls.style.display = 'none';
+        removeReadingMask();
+        if (nightMode) {
+            document.body.style.background = 'linear-gradient(135deg, #0f2027, #203a43, #2c5364)';
+        } else {
+            document.body.style.background = 'linear-gradient(135deg, #fdfbfb, #ebedee)';
+        }
+    }
+}
+function adjustFontSize(size) {
+    document.body.style.fontSize = size + 'px';
+}
+
+function adjustSpacing(space) {
+    document.body.style.letterSpacing = space + 'px';
+    document.body.style.wordSpacing = space + 'px';
+    document.body.style.lineHeight = 1.5 + (space / 10);
+}
+
+// function adjustBgColor(color) {
+//     if (dyslexicMode) {
+//         document.body.style.background = color;
+//     } else {
+//         alert("Background color adjustment works only in Dyslexic Mode.");
+//     }
+// }
+
+function toggleReadingMask() {
+    maskActive = !maskActive;
+    const mask = document.getElementById('reading-mask');
+    const btn = document.getElementById('maskButton');
+
+    if (maskActive) {
+        mask.style.display = 'block';
+        btn.textContent = 'Disable Reading Mask';
+        document.addEventListener('mousemove', moveMask);
+    } else {
+        removeReadingMask();
+    }
+}
+
+function removeReadingMask() {
+    document.getElementById('reading-mask').style.display = 'none';
+    document.getElementById('maskButton').textContent = 'Enable Reading Mask';
+    document.removeEventListener('mousemove', moveMask);
+}
+
+function moveMask(e) {
+    const mask = document.getElementById('reading-mask');
+    mask.style.top = `${e.clientY - 20}px`;
+}
+
+function highlightSyllables() {
+    document.querySelectorAll('.syllable-highlight').forEach(e => e.remove());
+    document.querySelectorAll('textarea').forEach(area => {
+        const container = document.createElement('div');
+        container.className = 'syllable-highlight';
+        container.style.marginTop = '10px';
+
+        const text = area.value;
+        const words = text.split(/\s+/);
+        const syllables = words.map(word => word.replace(/([aeiouyAEIOUY])/g, '<span>$1</span>'));
+
+        container.innerHTML = syllables.join(' ');
+        area.parentNode.insertBefore(container, area.nextSibling);
+    });
+}
+
+async function handlePDFUpload() {
+    const file = document.getElementById('pdf-upload').files[0];
+    const message = document.getElementById('pdf-message');
+    message.textContent = '';
+
+    if (!file) {
+        message.textContent = '⚠️ Please select a PDF file first.';
+        message.style.color = 'red';
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('pdf', file);
+
+    try {
+        const res = await fetch('/upload_pdf', { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.simplified_text) {
+            document.getElementById('text-input').value = data.simplified_text;
+            document.getElementById('pdf-result').textContent = '✅ PDF simplified successfully!';
+            message.style.color = 'green';
+            message.textContent = 'PDF uploaded and simplified.';
+        } else {
+            message.style.color = 'red';
+            message.textContent = '⚠️ Error simplifying PDF.';
+        }
+    } catch (err) {
+        console.error(err);
+        message.style.color = 'red';
+        message.textContent = '⚠️ An unexpected error occurred.';
+    }
+}
+
+async function simplifyText() {
+    const text = document.getElementById('text-input').value;
+    const res = await fetch('/simplify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+    });
+    const data = await res.json();
+    document.getElementById('simplified-result').textContent = data.simplified_text ? 'Text simplified!' : 'Simplification failed.';
+    if (data.simplified_text) document.getElementById('text-input').value = data.simplified_text;
+}
+
+async function summarizeText() {
+    const text = document.getElementById('text-input').value;
+    const res = await fetch('/summarize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+    });
+    const data = await res.json();
+    document.getElementById('summary-result').textContent = data.summary || 'Summary failed.';
+}
+
+async function saveSimplifiedText() {
+    const text = document.getElementById('text-input').value;
+    const res = await fetch('/save_simplified', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, filename: 'notes_' + Date.now() + '.txt' })
+    });
+    const data = await res.json();
+    alert(data.message);
+}
+
+function startSpeech() {
+    const text = document.getElementById('speech-input').value;
+    if (window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utter);
+}
+
+function pauseSpeech() {
+    window.speechSynthesis.pause();
+}
+
+function convertToText() {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.onresult = e => {
+        document.getElementById('speech-input').value = e.results[0][0].transcript;
+    };
+    recognition.start();
+}
+
+async function playPronunciation() {
+    const text = document.getElementById('pronunciation-input').value.trim();
+    if (!text) return alert('Enter text to hear pronunciation.');
+
+    try {
+        const res = await fetch('/text_to_speech', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+        });
+
+        if (!res.ok) return alert('Failed to generate pronunciation.');
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        new Audio(url).play();
+    } catch {
+        alert('Failed to generate pronunciation.');
+    }
+}
+
+function recordPronunciation() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return alert('Speech recognition not supported.');
+
+    const expected = document.getElementById('pronunciation-input').value.trim().toLowerCase();
+    if (!expected) return alert('Enter text to practice.');
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.onresult = e => {
+        const spoken = e.results[0][0].transcript.toLowerCase();
+        const feedback = document.getElementById('pronunciation-feedback');
+        if (spoken === expected) {
+            feedback.textContent = "✅ Perfect! Your pronunciation matched.";
+            feedback.style.backgroundColor = "#d4edda";
+        } else {
+            feedback.textContent = `❌ Mismatch. You said: "${spoken}"`;
+            feedback.style.backgroundColor = "#f8d7da";
+        }
+    };
+    recognition.start();
+}
+
+</script>
+
+</body>
+</html>
