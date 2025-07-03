@@ -5,10 +5,17 @@ from PyPDF2 import PdfReader
 from gtts import gTTS
 from fpdf import FPDF
 import nltk
-nltk.data.path.append('/opt/render/nltk_data')
+import os
 
-nltk.download('punkt', download_dir='/opt/render/nltk_data')
-nltk.download('stopwords', download_dir='/opt/render/nltk_data')
+# Set NLTK Data Directory
+NLTK_DIR = '/opt/render/nltk_data'
+os.makedirs(NLTK_DIR, exist_ok=True)
+nltk.data.path.append(NLTK_DIR)
+
+# Download resources to the custom directory
+nltk.download('punkt', download_dir=NLTK_DIR)
+nltk.download('stopwords', download_dir=NLTK_DIR)
+
 
 import re
 import heapq
