@@ -7,15 +7,21 @@ from fpdf import FPDF
 import nltk
 import os
 
-# Set NLTK Data Directory
+# Force NLTK to use a consistent directory
 NLTK_DIR = '/opt/render/nltk_data'
 os.makedirs(NLTK_DIR, exist_ok=True)
 nltk.data.path.append(NLTK_DIR)
 
-# Download resources to the custom directory
-nltk.download('punkt', download_dir=NLTK_DIR)
-nltk.download('stopwords', download_dir=NLTK_DIR)
+# Download only if missing
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt', download_dir=NLTK_DIR)
 
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords', download_dir=NLTK_DIR)
 
 import re
 import heapq
