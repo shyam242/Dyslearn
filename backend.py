@@ -190,11 +190,11 @@ def pronunciation_feedback():
 
     if not user_audio or not correct_text:
         return jsonify({'error': 'Audio or text not provided'}), 400
-
-    # Placeholder for actual comparison logic
     feedback = "Your pronunciation is good!"  # Placeholder feedback
 
     return jsonify({'feedback': feedback})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get("PORT", 5000)) 
+    app.run(host='0.0.0.0', port=port, debug=True)
