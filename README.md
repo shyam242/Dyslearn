@@ -87,27 +87,29 @@ Dyslexic Mode enhances readability by adjusting text spacing, adding highlights,
 
 ---
 
-## Demo Screenshots  🖼️
+## 🖼️ Screenshots
 
-Below are the UI mockups and before vs after views demonstrating Dyslearn's features in desktop mode:
+### 🔹 Text Simplification vs Dyslexic Mode
 
-1. ![Screenshot 1](./Downloads/simplification.png)  
-   *Caption: Text Simplification view showing simplified content.*
+| Text Simplification | Dyslexic Mode |
+|----------------------|----------------------|
+| ![Text Simplification](./Downloads/simplification.png) <br> *Simplified content for easier reading.* | ![Dyslexic Mode](./Downloads/dyslexicmode.png) <br> *Increased spacing, special fonts, and highlights.* |
 
-2. ![Screenshot 2](./Downloads/dyslexicmode.png)  
-   *Caption: Dyslexic Mode with increased spacing and highlights.*
+---
 
-3. ![Screenshot 3](./Downloads/speech.png)  
-   *Caption: Text-to-Speech interface with audio controls.*
+### 🔹 Text-to-Speech vs Pronunciation Checker
 
-4. ![Screenshot 4](./Downloads/pronunciation.png)  
-   *Caption: Pronunciation Checker in action.*
+| Text-to-Speech | Pronunciation Checker |
+|----------------------|----------------------|
+| ![Text-to-Speech](./Downloads/speech.png) <br> *Audio controls for listening to text.* | ![Pronunciation Checker](./Downloads/pronunciation.png) <br> *Interactive pronunciation feedback.* |
 
-5. ![Screenshot 5](./Downloads/pdf.png)  
-   *Caption: Offline PDF Generator output preview.*
+---
 
-- Text Simplification view  
-- Dyslexic Mode view with special fonts and spacing  
+### 🔹 Offline PDF Output
+
+| PDF Generator |
+|---------------|
+| ![PDF Output](./Downloads/pdf.png) <br> *Preview of simplified PDF generated offline.* |
 
 ---
 
