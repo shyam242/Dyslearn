@@ -118,9 +118,8 @@ Dyslexic Mode enhances readability by adjusting text spacing, adding highlights,
 - `/frontend` → UI interface  
 - `/backend` → Flask application  
 - `/nlp` → Text simplification logic  
-- `/audio` → Text-to-Speech modules  
-- `/fonts` → Dyslexic and custom fonts  
-- `/pdf` → PDF generation scripts  
+- `/processed` → Contains processed documents
+- `/uploads` → Contains uploaded documents
 
 ---
 
