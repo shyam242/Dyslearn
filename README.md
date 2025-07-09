@@ -91,19 +91,19 @@ Dyslexic Mode enhances readability by adjusting text spacing, adding highlights,
 
 Below are the UI mockups and before vs after views demonstrating Dyslearn's features in desktop mode:
 
-1. ![Screenshot 1](./simplification.png)  
+1. ![Screenshot 1](./Downloads/simplification.png)  
    *Caption: Text Simplification view showing simplified content.*
 
-2. ![Screenshot 2](./dyslexicmode.png)  
+2. ![Screenshot 2](./Downloads/dyslexicmode.png)  
    *Caption: Dyslexic Mode with increased spacing and highlights.*
 
-3. ![Screenshot 3](./speech.png)  
+3. ![Screenshot 3](./Downloads/speech.png)  
    *Caption: Text-to-Speech interface with audio controls.*
 
-4. ![Screenshot 4](./pronunciation.png)  
+4. ![Screenshot 4](./Downloads/pronunciation.png)  
    *Caption: Pronunciation Checker in action.*
 
-5. ![Screenshot 6](./pdf.png)  
+5. ![Screenshot 5](./Downloads/pdf.png)  
    *Caption: Offline PDF Generator output preview.*
 
 - Text Simplification view  
