@@ -25,7 +25,7 @@
 
 ## Overview  🌟
 
-Dyslearn is an **inclusive educational tool** designed to simplify notes and empower learning for dyslexic students in India. Targeted primarily at primary and middle-grade students, as well as their parents and educators, Dyslearn addresses the unique challenges faced by dyslexic learners in the Indian context. By focusing on **accessibility**, **regional diversity**, and **offline usability**, Dyslearn aims to bridge the gap in educational resources for dyslexic students across Bharat.
+I have always wondered that instead of changing student to fit in the system why not change system so that most of the students can fit in it. Therefore we made Dyslearn.Dyslearn is an **inclusive educational tool** designed to simplify notes and empower learning for dyslexic students in India. Targeted primarily at primary and middle-grade students, as well as their parents and educators, Dyslearn addresses the unique challenges faced by dyslexic learners in the Indian context. By focusing on **accessibility**, **regional diversity**, and **offline usability**, Dyslearn aims to bridge the gap in educational resources for dyslexic students across Bharat.
 
 > 💡 *Empowering every learner with accessible education tailored to their needs.*
 
