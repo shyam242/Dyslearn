@@ -3,5 +3,4 @@ PyPDF2
 gTTS
 fpdf
 nltk
-nltk.downloader punkt
 
