@@ -5,14 +5,15 @@ from PyPDF2 import PdfReader
 from gtts import gTTS
 from fpdf import FPDF
 import nltk
-import os
+import re
+import heapq
 
-# Force NLTK to use a consistent directory
+# Configure NLTK path
 NLTK_DIR = '/opt/render/nltk_data'
 os.makedirs(NLTK_DIR, exist_ok=True)
 nltk.data.path.append(NLTK_DIR)
 
-# Download only if missing
+# Download required NLTK resources if missing
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
@@ -23,11 +24,8 @@ try:
 except LookupError:
     nltk.download('stopwords', download_dir=NLTK_DIR)
 
-import re
-import heapq
-
-nltk.download('punkt')
-nltk.download('stopwords')
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
 
 app = Flask(__name__)
 
@@ -37,7 +35,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Basic synonym replacements for simplification
 simple_synonyms = {
     "complicated": "hard",
     "difficult": "hard",
@@ -55,43 +52,31 @@ simple_synonyms = {
 }
 
 def simplify_text(text):
-    from nltk.tokenize import sent_tokenize, word_tokenize
-
     sentences = sent_tokenize(text)
     simplified_sentences = []
-
     for sentence in sentences:
         words = word_tokenize(sentence)
         simplified_words = [simple_synonyms.get(word.lower(), word) for word in words]
-        
         chunk_size = 8
-        chunks = [' '.join(simplified_words[i:i+chunk_size]) for i in range(0, len(simplified_words), chunk_size)]
+        chunks = [' '.join(simplified_words[i:i + chunk_size]) for i in range(0, len(simplified_words), chunk_size)]
         simplified_sentences.append('\n'.join(chunks))
-
     return '\n\n'.join(simplified_sentences)
 
 def summarize_text(text, max_sentences=3):
-    from nltk.tokenize import sent_tokenize, word_tokenize
-    from nltk.corpus import stopwords
-
     stop_words = set(stopwords.words("english"))
     word_freq = {}
     sentences = sent_tokenize(text)
-
     for sentence in sentences:
         for word in word_tokenize(sentence.lower()):
             if word.isalpha() and word not in stop_words:
                 word_freq[word] = word_freq.get(word, 0) + 1
-
     if not word_freq:
         return "Summary not possible due to insufficient content."
-
     sentence_scores = {}
     for sentence in sentences:
         for word in word_tokenize(sentence.lower()):
             if word in word_freq:
                 sentence_scores[sentence] = sentence_scores.get(sentence, 0) + word_freq[word]
-
     best_sentences = heapq.nlargest(max_sentences, sentence_scores, key=sentence_scores.get)
     return ' '.join(best_sentences)
 
@@ -104,7 +89,7 @@ def extract_text_from_pdf(pdf_path):
 
 @app.route('/')
 def index():
-    return render_template('index.html')  # Ensure correct filename
+    return render_template('index.html')
 
 @app.route('/simplify', methods=['POST'])
 def simplify():
@@ -128,22 +113,17 @@ def summarize():
 def upload_pdf():
     if 'pdf' not in request.files:
         return jsonify({'error': 'No file part'}), 400
-
     file = request.files['pdf']
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
-
     filename = secure_filename(file.filename)
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
-
     try:
         extracted_text = extract_text_from_pdf(filepath)
         simplified_text = simplify_text(extracted_text)
-
         with open(os.path.join(PROCESSED_FOLDER, 'simplified.txt'), 'w', encoding='utf-8') as f:
             f.write(simplified_text)
-
         return jsonify({'message': 'PDF processed successfully', 'simplified_text': simplified_text})
     except ValueError as e:
         return jsonify({'error': str(e)}), 500
@@ -153,14 +133,11 @@ def save_simplified():
     data = request.json
     text = data.get('text', '')
     filename = secure_filename(data.get('filename', 'simplified_output.txt'))
-
     if not text:
         return jsonify({'error': 'No text provided'}), 400
-
     filepath = os.path.join(PROCESSED_FOLDER, filename)
     with open(filepath, 'w', encoding='utf-8') as f:
         f.write(text)
-
     return jsonify({'message': 'Simplified text saved successfully'})
 
 @app.route('/download_pdf')
@@ -168,7 +145,6 @@ def download_pdf():
     txt_path = os.path.join(PROCESSED_FOLDER, 'simplified.txt')
     if not os.path.exists(txt_path):
         return jsonify({'error': 'No simplified text available'}), 404
-
     pdf_path = os.path.join(PROCESSED_FOLDER, 'simplified.pdf')
     pdf = FPDF()
     pdf.add_page()
@@ -177,7 +153,6 @@ def download_pdf():
         for line in f:
             pdf.multi_cell(0, 10, line)
     pdf.output(pdf_path)
-
     return send_file(pdf_path, as_attachment=True)
 
 @app.route('/download_txt')
@@ -193,26 +168,21 @@ def text_to_speech():
     text = data.get('text', '')
     if not text:
         return jsonify({'error': 'No text provided'}), 400
-
     audio_path = os.path.join(PROCESSED_FOLDER, 'speech.mp3')
     tts = gTTS(text)
     tts.save(audio_path)
-
-    return send_file(audio_path, mimetype='audio/mpeg')  # Don't use as_attachment=True
+    return send_file(audio_path, mimetype='audio/mpeg')
 
 @app.route('/pronunciation_feedback', methods=['POST'])
 def pronunciation_feedback():
     data = request.json
     user_audio = data.get('audio', None)
     correct_text = data.get('text', None)
-
     if not user_audio or not correct_text:
         return jsonify({'error': 'Audio or text not provided'}), 400
-    feedback = "Your pronunciation is good!"  # Placeholder feedback
-
+    feedback = "Your pronunciation is good!"  # Placeholder
     return jsonify({'feedback': feedback})
 
 if __name__ == '__main__':
-    import os
-    port = int(os.environ.get("PORT", 5000)) 
+    port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
