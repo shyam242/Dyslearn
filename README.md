@@ -180,7 +180,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
   GitHub: [kumarayush0104](https://github.com/kumarayush0104)  
   LinkedIn: [Ayush Kumar](https://www.linkedin.com/in/kumarayush0104)
 
- **Presentation**- https://docs.google.com/presentation/d/1xhUUzdAjZ13i0GagEQayxGjKtSdJ-S1JNGxh6HrnZmI/edit?slide=id.p8#slide=id.p8
+ **Presentation**-(https://docs.google.com/presentation/d/1xhUUzdAjZ13i0GagEQayxGjKtSdJ-S1JNGxh6HrnZmI/edit?slide=id.p8#slide=id.p8)
+ 
   **Demo video**- https://youtu.be/bj1X5aWS5P0?si=OwT69rYl8Vcuez4V
 
 ### Acknowledgements
