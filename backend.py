@@ -6,12 +6,12 @@ from gtts import gTTS
 from fpdf import FPDF
 import nltk
 
-# Configure NLTK path
-NLTK_DIR = '/opt/render/nltk_data'
+# ✅ Use a local directory for NLTK data (Render-compatible)
+NLTK_DIR = os.path.join(os.getcwd(), "nltk_data")
 os.makedirs(NLTK_DIR, exist_ok=True)
 nltk.data.path.append(NLTK_DIR)
 
-# Download required resources if not already present
+# ✅ Download required NLTK resources if not present
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
@@ -22,19 +22,20 @@ try:
 except LookupError:
     nltk.download('stopwords', download_dir=NLTK_DIR)
 
-import re
 import heapq
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.corpus import stopwords
 
 app = Flask(__name__)
 
+# ✅ Upload and output folders
 UPLOAD_FOLDER = 'uploads'
 PROCESSED_FOLDER = 'processed'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# ✅ Simplification mapping
 simple_synonyms = {
     "complicated": "hard",
     "difficult": "hard",
@@ -51,6 +52,7 @@ simple_synonyms = {
     "concept": "idea",
 }
 
+# ✅ Simplify text
 def simplify_text(text):
     sentences = sent_tokenize(text, language='english')
     simplified_sentences = []
@@ -58,10 +60,11 @@ def simplify_text(text):
         words = word_tokenize(sentence)
         simplified_words = [simple_synonyms.get(word.lower(), word) for word in words]
         chunk_size = 8
-        chunks = [' '.join(simplified_words[i:i+chunk_size]) for i in range(0, len(simplified_words), chunk_size)]
+        chunks = [' '.join(simplified_words[i:i + chunk_size]) for i in range(0, len(simplified_words), chunk_size)]
         simplified_sentences.append('\n'.join(chunks))
     return '\n\n'.join(simplified_sentences)
 
+# ✅ Summarize text
 def summarize_text(text, max_sentences=3):
     stop_words = set(stopwords.words("english"))
     word_freq = {}
@@ -84,10 +87,12 @@ def summarize_text(text, max_sentences=3):
     best_sentences = heapq.nlargest(max_sentences, sentence_scores, key=sentence_scores.get)
     return ' '.join(best_sentences)
 
+# ✅ Extract text from PDF
 def extract_text_from_pdf(pdf_path):
     reader = PdfReader(pdf_path)
     return "\n".join(page.extract_text() or "" for page in reader.pages)
 
+# ✅ Routes
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -189,6 +194,7 @@ def pronunciation_feedback():
     feedback = "Your pronunciation is good!"  # Placeholder
     return jsonify({'feedback': feedback})
 
+# ✅ Render-compatible port binding
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port)
